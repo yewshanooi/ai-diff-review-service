@@ -1,8 +1,12 @@
 # SUBMISSION
 
+## Deployment
+
+The service is deployed live on **Railway**. Server environment variables (`BEARER_TOKEN`, `LLM_API_KEY`, `LLM_MODEL`, `LLM_BASE_URL`, and `PORT`) are configured via Railway's dashboard.
+
 ## Architecture
 
-Express/TypeScript HTTP service with in-memory state. The pipeline is:
+Express HTTP service running on Railway with in-memory state. The pipeline is:
 **HTTP → Auth → Rate Limiter → Job Manager → Diff Parser → Chunker → Provider → Cache → SSE Events**
 
 Jobs are processed asynchronously via a bounded concurrency pool (max 4 active, overflow queued). All state (jobs, cache, events, idempotency keys) is held in memory — suitable for the 48-hour scoring window; a production version would use Redis/Postgres.
@@ -33,7 +37,7 @@ The AI initially suggested using a third-party rate limiting library (`express-r
 
 1. **Persistent storage** — Redis for cache/idempotency/jobs, PostgreSQL for audit trail
 2. **Structured logging** — JSON logs with correlation IDs per request/job
-3. **Comprehensive test suite** — Jest/Vitest with edge cases for each mock rule, chunk boundary conditions, and concurrent stress tests
-4. **Dockerfile + CI/CD** — Multi-stage Docker build, GitHub Actions for lint/test/deploy
+3. **Comprehensive test suite** — Vitest with edge cases for each mock rule, chunk boundary conditions, and concurrent stress tests
+4. **Dockerfile + CI/CD** — Docker build, GitHub Actions for lint/test/deploy
 5. **Graceful shutdown** — Drain in-flight jobs on SIGTERM before exiting
 6. **Observability** — Prometheus metrics for job latency, cache hit rate, error rates
